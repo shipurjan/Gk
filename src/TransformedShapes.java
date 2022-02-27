@@ -77,7 +77,7 @@ public class TransformedShapes extends JPanel {
 		g2.rotate(Math.PI); 	// do rotate
 		g2.scale(0.5, 0.5); 	// do scale
 		triangle();
-
+		
 		// reset the transform, so changes don't apply to subsequent drawing
 
 		resetTransform();
