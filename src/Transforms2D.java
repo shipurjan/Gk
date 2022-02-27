@@ -59,9 +59,13 @@ public class Transforms2D extends JPanel {
 			int vertices = 11;
 			for (int i = 0; i < vertices; i++)
 				hendecagon.addPoint(
-						(int) (150 * Math.cos(i * 2 * Math.PI / vertices)),
-						(int) (150 * Math.sin(i * 2 * Math.PI / vertices))
-					);
+						(int) (150 * Math.cos(i * 1.75 * Math.PI / vertices)),
+						(int) (150 * Math.sin(i * 1.75 * Math.PI / vertices))
+					); 	// okres ustawiony na mniej ni¿ 2, aby wielok¹t nie by³ foremny i 
+						// ¿eby lepiej by³o widaæ przekszta³cenia
+			g2.setColor(Color.black);
+			g2.drawPolygon(hendecagon);
+			g2.setColor(Color.red);
 			g2.fillPolygon(hendecagon);
 		}
 	}
