@@ -49,43 +49,98 @@
     
         graphics.clearRect(0,0,600,600);
         // TODO: insert code to draw the image for Exercise 1!
-		function drawEye(r, x, y) {
+		function drawEye(x, y, r) {
+			graphics.save();
+			
+			var r_iris = 0.6*r;
+			var r_pupil = 0.2*r;
+			
 			graphics.strokeCircle(x,y,r);
 			graphics.fillStyle = "rgb(255,255,255)";
 			graphics.fillCircle(x,y,r);
 			graphics.fillStyle = "rgb(0,0,0)";
-			graphics.fillCircle(x,y,r*0.7);
+			graphics.fillCircle(x,y,r_iris);
 			graphics.fillStyle = "rgb(255,255,255)";
-			graphics.fillCircle(x-0.2*r,y-0.2*r,r*0.25);
-		}
-		function drawCrescent(width, x, y, rotation=0) {
-			graphics.beginPath();
-			graphics.rotate(rotation);
-			graphics.moveTo(x,y);
-			graphics.bezierCurveTo(
-				x+width*0.2,y+width/2,
-				x+width*0.8,y+width/2,
-				x+width,y
-			);
+			graphics.fillCircle(x-r_pupil,y-r_pupil,r_pupil);
 			
-			graphics.moveTo(x+width,y);
-			graphics.bezierCurveTo(
-				x+width*0.8,y+width/4,
-				x+width*0.2,y+width/4,
-				x,y
+			graphics.restore();
+		}
+
+		function drawCrescent(width, x, y, rotation=0) {
+			graphics.save();
+			
+			graphics.beginPath();
+			graphics.translate(x, y);
+			graphics.rotate(rotation);
+			
+			var h_width = 0.5*width;
+			var q_width = 0.25*width;
+			
+			graphics.moveTo(-h_width,0);
+			graphics.quadraticCurveTo(
+				0, 3*q_width,
+				h_width, 0
+			);
+			graphics.moveTo(h_width,0);
+			graphics.quadraticCurveTo(
+				0, 1*q_width,
+				-h_width, 0
 			);
 			
 			graphics.fillStyle = "rgb(0,0,0)";
 			graphics.fill();
-			graphics.closePath();
+			
+			graphics.moveTo(0,0);
 			graphics.rotate(-rotation);
-		}
-		function drawMouth(width, x, y) {
-			drawCrescent(width/10, x-width/4, y+width/6, -0.3);
-			drawCrescent(width, x, y);
+			graphics.translate(0,0);
+			
+			graphics.restore();
 		}
 		
-		drawMouth(300, 200, 200);
+		function drawMouth(width, x, y) {
+			graphics.save();
+			
+			var theta = 30;
+			var q_width = 0.25*width;
+			var h_width = 0.5*width;
+			var s_width = 0.05*width;
+			
+			drawCrescent(width, x, y, 0 * Math.PI/180);
+			drawCrescent(q_width, x-h_width, y-s_width, -theta * Math.PI/180);
+			drawCrescent(q_width, x+h_width, y-s_width, theta * Math.PI/180);
+			
+			var a = x+0.03*width;
+			var b = y+0.125*width;
+			var w = width/8;
+			var h = width/6;
+			
+			graphics.fillStyle = "rgb(255,255,255)";
+			graphics.strokeStyle = "rgb(0,0,0)";
+
+			graphics.fillRect(a,b,w,h);
+			graphics.strokeRect(a,b,w,h);
+			graphics.fillRect(a-w,b,w,h);
+			graphics.strokeRect(a-w,b,w,h);
+			
+			graphics.restore();
+		}
+		function drawOvalWithAFace(x, y, rx, ry){
+			graphics.save();
+			
+			graphics.fillStyle = "rgb(255,0,255)";
+			graphics.strokeStyle = "rgb(0,0,0)";
+			graphics.fillOval(x, y, rx, ry);
+			graphics.strokeOval(x, y, rx, ry);
+			
+			var r_eye = 0.05*(rx+ry);
+			
+			drawEye(x-4*r_eye, y-2*r_eye, r_eye);
+			drawEye(x+4*r_eye, y-2*r_eye, r_eye);
+			
+			drawMouth(4*r_eye, x, y+2*r_eye);
+			graphics.restore();
+		}
+		drawOvalWithAFace(300, 300, 250, 150);
     } // end of draw()
     
     
