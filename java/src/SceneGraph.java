@@ -177,15 +177,15 @@ public class SceneGraph extends JPanel {
 	private static SceneGraphNode wheel = new SceneGraphNode() {
 		void doDraw(Graphics2D g) {  // change drawpolygon method to path drawing
 			Path2D path = new  Path2D.Double(); 
-			Polygon hendecagon = new Polygon();
 			int vertices = 11;
 			for (int i = 0; i < vertices; i++) {
 				int x = (int) (3 * Math.cos(i * 2 * Math.PI / vertices));
 				int y = (int) (3 * Math.sin(i * 2 * Math.PI / vertices));
-				hendecagon.addPoint(x,y);
-
+				path.moveTo(0, 0);
+				path.lineTo(x,y);
 			}
-			g.drawPolygon(hendecagon); 
+			path.closePath();
+			g.fill(path); 
 		}
 	};
 	
