@@ -40,19 +40,31 @@ public class SceneGraph extends JPanel {
 	private CompoundObject world; // SceneGraphNode representing the entire scene.
 
 	// TODO: Define global variables to represent animated objects in the scene.
-	private TransformedObject wheel01;  // (DELETE THIS EXAMPLE)
-
+	private TransformedObject windmill;
+	
 	/**
 	 *  Builds the data structure that represents the entire picture. 
 	 */
 	private void createWorld() {
 
-		world = new CompoundObject();  // Root node for the scene graph.
 		
+		
+		CompoundObject windmillTemp = new CompoundObject();
+		windmillTemp.add(new TransformedObject(filledTriangle).setScale(1,5).setTranslation(0, -5));
+		windmillTemp.add(new TransformedObject(wheel).setScale(1,1).setTranslation(-2,6).setColor(Color.BLACK));
+		windmillTemp.add(new TransformedObject(wheel).setScale(1,1).setTranslation(2,4).setColor(Color.BLACK));
+		windmillTemp.add(new TransformedObject(filledRect).setScale(4,0.5).setRotation(30).setColor(Color.RED));
+		windmill = new TransformedObject(windmillTemp);
+		
+		world = new CompoundObject();  // Root node for the scene graph.
+		world.setColor(Color.BLUE);
+		world.add(new TransformedObject(windmill).setTranslation(-2,0));
+		world.setColor(Color.RED);
+		world.add(new TransformedObject(windmill).setTranslation(0,0));
+		world.setColor(Color.GREEN);
+		world.add(new TransformedObject(windmill).setTranslation(2,0));
 		// TODO: Create objects and add them to the scene graph.
-		wheel01 = new TransformedObject(wheel);   // (DELETE THIS EXAMPLE)
-		wheel01.setScale(1,1).setColor(Color.RED); 
-		world.add(wheel01);
+		
 
 	} // end createWorld()
 
@@ -65,7 +77,7 @@ public class SceneGraph extends JPanel {
 		frameNumber++;
 
 		// TODO: Update state in preparation for drawing the next frame.
-		// wheel.setRotation(frameNumber*5); // (DELETE THIS EXAMPLE)
+		 
 	}
 
 
@@ -175,17 +187,23 @@ public class SceneGraph extends JPanel {
 	};
 
 	private static SceneGraphNode wheel = new SceneGraphNode() {
-		void doDraw(Graphics2D g) {  // change drawpolygon method to path drawing
-			Path2D path = new  Path2D.Double(); 
+		void doDraw(Graphics2D g) { 
 			int vertices = 11;
-			for (int i = 0; i < vertices; i++) {
-				int x = (int) (3 * Math.cos(i * 2 * Math.PI / vertices));
-				int y = (int) (3 * Math.sin(i * 2 * Math.PI / vertices));
-				path.moveTo(0, 0);
-				path.lineTo(x,y);
+			double x[] = new double[vertices];
+			double y[] = new double[vertices];
+			for(int i = 0; i < vertices; i++) {
+				x[i] = Math.cos(i * 2 * Math.PI / vertices);
+				y[i] = Math.sin(i * 2 * Math.PI / vertices);
+			}
+			Path2D path = new Path2D.Double();
+			path.moveTo(0,0);
+			for(int i = 0; i < vertices; i++) {
+				path.lineTo(x[i],y[i]);
+				path.lineTo(x[(i+1)%vertices],y[(i+1)%vertices]);
+				path.lineTo(0,0);
 			}
 			path.closePath();
-			g.fill(path); 
+			g.draw(path);
 		}
 	};
 	
