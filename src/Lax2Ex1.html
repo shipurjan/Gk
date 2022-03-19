@@ -97,7 +97,7 @@
 			graphics.restore();
 		}
 		
-		function drawMouth(width, x, y) {
+		function drawMouth(x, y, width) {
 			graphics.save();
 			
 			var theta = 30;
@@ -124,23 +124,32 @@
 			
 			graphics.restore();
 		}
-		function drawOvalWithAFace(x, y, rx, ry){
+		function drawVariant7(x, y, size){
 			graphics.save();
-			
+			graphics.translate(x, y);
 			graphics.fillStyle = "rgb(255,0,255)";
 			graphics.strokeStyle = "rgb(0,0,0)";
-			graphics.fillOval(x, y, rx, ry);
-			graphics.strokeOval(x, y, rx, ry);
+
+			var p1 = [-120*size,	-60*size];
+			var p2 = [120*size,	-60*size];
+			var p3 = [-150*size,	0];
+			var p4 = [150*size,	0];
+			var p5 = [0,			220*size];
+			var r_eye = 15*size;
 			
-			var r_eye = 0.05*(rx+ry);
+			graphics.fillPoly(...p1,...p2,...p4,...p3);
+			graphics.strokePoly(...p1,...p2,...p4,...p3);
+			drawEye(p1[0]/2, p1[1]/2, r_eye);
+			drawEye(p2[0]/2, p2[1]/2, r_eye);
 			
-			drawEye(x-4*r_eye, y-2*r_eye, r_eye);
-			drawEye(x+4*r_eye, y-2*r_eye, r_eye);
+			graphics.fillPoly(...p4,...p3,...p5);
+			graphics.strokePoly(...p4,...p3,...p5);
+			drawMouth(p5[0],p5[1]/4,6*r_eye);
 			
-			drawMouth(4*r_eye, x, y+2*r_eye);
+			graphics.translate(0,0);
 			graphics.restore();
 		}
-		drawOvalWithAFace(300, 300, 250, 150);
+		drawVariant7(300, 175, 1.75);
     } // end of draw()
     
     
