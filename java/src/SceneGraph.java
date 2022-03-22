@@ -40,30 +40,59 @@ public class SceneGraph extends JPanel {
 	private CompoundObject world; // SceneGraphNode representing the entire scene.
 
 	// TODO: Define global variables to represent animated objects in the scene.
-	private TransformedObject windmill;
+	private int wheelVertices = 100;
 	
+	private TransformedObject translatedLine;
+	private TransformedObject triangle;
+	private TransformedObject wheel;
+	private TransformedObject sail;
+	private TransformedObject windmill;
+
 	/**
 	 *  Builds the data structure that represents the entire picture. 
 	 */
-	private void createWorld() {
-
+	private void createWorld() {	
+		CompoundObject translatedLineTemp = new CompoundObject();
+		translatedLineTemp.add( new TransformedObject(line).setTranslation(0.5, 0) );
+		translatedLine = new TransformedObject(translatedLineTemp);
 		
+		CompoundObject triangleTemp = new CompoundObject();
+		triangleTemp.add(new TransformedObject(translatedLine).setRotation(60));
+		triangleTemp.add(new TransformedObject(translatedLine).setRotation(120).setTranslation(1,0));
+		triangleTemp.add(new TransformedObject(translatedLine));
+		triangle = new TransformedObject(triangleTemp).setTranslation(-0.5, -Math.sqrt(3.0)/2.0);
+		
+		
+		CompoundObject wheelTemp = new CompoundObject();
+		for(int i=0; i<wheelVertices; i++) {
+			wheelTemp.add(
+					new TransformedObject(triangle)
+					.setScale(1,1.16*Math.cos(Math.PI/wheelVertices)/(2*Math.sin(Math.PI/wheelVertices)))
+					.setRotation(i*(360.0/wheelVertices))
+					.setColor(Color.BLACK)
+				);
+		}
+		wheel = new TransformedObject(wheelTemp).setScale(8.0/wheelVertices,8.0/wheelVertices);
+		
+		CompoundObject sailTemp = new CompoundObject();
+		sailTemp.add(new TransformedObject(wheel).setTranslation(-2.5, 0));
+		sailTemp.add(new TransformedObject(wheel).setTranslation(2.5, 0));
+		sailTemp.add( new TransformedObject(filledRect).setScale(5.4,0.35).setColor(Color.RED) );
+		sail = new TransformedObject(sailTemp);
 		
 		CompoundObject windmillTemp = new CompoundObject();
-		windmillTemp.add(new TransformedObject(filledTriangle).setScale(1,5).setTranslation(0, -5));
-		windmillTemp.add(new TransformedObject(wheel).setScale(1,1).setTranslation(-2,6).setColor(Color.BLACK));
-		windmillTemp.add(new TransformedObject(wheel).setScale(1,1).setTranslation(2,4).setColor(Color.BLACK));
-		windmillTemp.add(new TransformedObject(filledRect).setScale(4,0.5).setRotation(30).setColor(Color.RED));
+		windmillTemp.add(new TransformedObject(sail).setTranslation(0, 4).setRotation(-15));
+		windmillTemp.add(new TransformedObject(filledTriangle).setScale(1.25, 4));
 		windmill = new TransformedObject(windmillTemp);
 		
 		world = new CompoundObject();  // Root node for the scene graph.
-		world.setColor(Color.BLUE);
-		world.add(new TransformedObject(windmill).setTranslation(-2,0));
-		world.setColor(Color.RED);
-		world.add(new TransformedObject(windmill).setTranslation(0,0));
-		world.setColor(Color.GREEN);
-		world.add(new TransformedObject(windmill).setTranslation(2,0));
+		world.add( new TransformedObject(windmill).setScale(0.5,0.5).setTranslation(0,-2.8).setColor(Color.BLUE) );
+		world.add( new TransformedObject(windmill).setScale(0.4,0.4).setTranslation(-2.3,-0.5).setColor(Color.MAGENTA) );
+		world.add( new TransformedObject(windmill).setScale(0.3,0.3).setTranslation(2.4,0.5).setColor(Color.GREEN) );
 		// TODO: Create objects and add them to the scene graph.
+		//rotatingRect = new TransformedObject(filledRect);   // (DELETE THIS EXAMPLE)
+		//rotatingRect.setScale(2,2).setColor(Color.RED); 
+		
 		
 
 	} // end createWorld()
@@ -77,7 +106,7 @@ public class SceneGraph extends JPanel {
 		frameNumber++;
 
 		// TODO: Update state in preparation for drawing the next frame.
-		 
+		wheel.setRotation(-frameNumber*1.25);
 	}
 
 
@@ -186,31 +215,10 @@ public class SceneGraph extends JPanel {
 		void doDraw(Graphics2D g) {  g.draw(new Ellipse2D.Double(-0.5,-0.5,1,1)); }
 	};
 
-	private static SceneGraphNode wheel = new SceneGraphNode() {
-		void doDraw(Graphics2D g) { 
-			int vertices = 11;
-			double x[] = new double[vertices];
-			double y[] = new double[vertices];
-			for(int i = 0; i < vertices; i++) {
-				x[i] = Math.cos(i * 2 * Math.PI / vertices);
-				y[i] = Math.sin(i * 2 * Math.PI / vertices);
-			}
-			Path2D path = new Path2D.Double();
-			path.moveTo(0,0);
-			for(int i = 0; i < vertices; i++) {
-				path.lineTo(x[i],y[i]);
-				path.lineTo(x[(i+1)%vertices],y[(i+1)%vertices]);
-				path.lineTo(0,0);
-			}
-			path.closePath();
-			g.draw(path);
-		}
-	};
-	
 	private static SceneGraphNode filledCircle = new SceneGraphNode() {
 		void doDraw(Graphics2D g) {  g.fill(new Ellipse2D.Double(-0.5,-0.5,1,1)); }
 	};
-	
+
 	private static SceneGraphNode filledTriangle = new SceneGraphNode() {
 		void doDraw(Graphics2D g) {  // width = 1, height = 1, center of base is at (0,0);
 			Path2D path = new Path2D.Double();
