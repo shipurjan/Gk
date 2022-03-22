@@ -46,7 +46,8 @@ public class SubroutineHierarchy extends JPanel {
 	private void drawWorld(Graphics2D g2) {
 
 		// TODO: Draw the content of the scene.
-		rotatingRect(g2);  // (DELETE THIS EXAMPLE)
+		g2.translate(1,1);
+		rotatingWheel(g2); 
 
 	} // end drawWorld()
 	
@@ -62,13 +63,26 @@ public class SubroutineHierarchy extends JPanel {
     
 	// TODO: Define methods for drawing objects in the scene.
 	
-	private void rotatingRect(Graphics2D g2) { // (DELETE THIS EXAMPLE)
+	private void rotatingWheel(Graphics2D g2) { // (DELETE THIS EXAMPLE)
+		int vertices = 11;
 		AffineTransform saveTransform = g2.getTransform();  // (It might be necessary to save/restore transform and color)
 		Color saveColor = g2.getColor();
-		g2.setColor( Color.RED );
-		g2.rotate( Math.toRadians( frameNumber*0.75 ));
-		g2.scale( 2, 2 );
-		filledRect(g2);
+		g2.setColor( Color.BLACK );
+		g2.rotate( Math.toRadians( -frameNumber*1.25 ));
+		g2.scale( 1, 1 );
+		Path2D path = new Path2D.Double();
+		path.moveTo(0, 0);
+		for(int i = 0; i < vertices; i++) {
+			double xt_cur = Math.cos(i * 2 * Math.PI / vertices);
+			double yt_cur = Math.sin(i * 2 * Math.PI / vertices);
+			double xt_next = Math.cos(((i+1)%vertices) * 2 * Math.PI / vertices);
+			double yt_next = Math.sin(((i+1)%vertices) * 2 * Math.PI / vertices);
+			path.lineTo(xt_cur,yt_cur);
+			path.lineTo(xt_next, yt_next);
+			path.moveTo(0,0);
+			g2.draw(path);
+		}
+		path.closePath();
 		g2.setColor(saveColor);
 		g2.setTransform(saveTransform);
 	}

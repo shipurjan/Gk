@@ -40,7 +40,7 @@ public class SceneGraph extends JPanel {
 	private CompoundObject world; // SceneGraphNode representing the entire scene.
 
 	// TODO: Define global variables to represent animated objects in the scene.
-	private int wheelVertices = 100;
+	private int wheelVertices = 11;
 	
 	private TransformedObject translatedLine;
 	private TransformedObject triangle;
@@ -65,13 +65,10 @@ public class SceneGraph extends JPanel {
 		
 		CompoundObject wheelTemp = new CompoundObject();
 		for(int i=0; i<wheelVertices; i++) {
-			wheelTemp.add(
-					new TransformedObject(triangle)
+			wheelTemp.add(new TransformedObject(triangle)
 					.setScale(1,1.16*Math.cos(Math.PI/wheelVertices)/(2*Math.sin(Math.PI/wheelVertices)))
 					.setRotation(i*(360.0/wheelVertices))
-					.setColor(Color.BLACK)
-				);
-		}
+					.setColor(Color.BLACK));}
 		wheel = new TransformedObject(wheelTemp).setScale(8.0/wheelVertices,8.0/wheelVertices);
 		
 		CompoundObject sailTemp = new CompoundObject();
@@ -85,17 +82,11 @@ public class SceneGraph extends JPanel {
 		windmillTemp.add(new TransformedObject(filledTriangle).setScale(1.25, 4));
 		windmill = new TransformedObject(windmillTemp);
 		
-		world = new CompoundObject();  // Root node for the scene graph.
+		world = new CompoundObject();
 		world.add( new TransformedObject(windmill).setScale(0.5,0.5).setTranslation(0,-2.8).setColor(Color.BLUE) );
 		world.add( new TransformedObject(windmill).setScale(0.4,0.4).setTranslation(-2.3,-0.5).setColor(Color.MAGENTA) );
 		world.add( new TransformedObject(windmill).setScale(0.3,0.3).setTranslation(2.4,0.5).setColor(Color.GREEN) );
-		// TODO: Create objects and add them to the scene graph.
-		//rotatingRect = new TransformedObject(filledRect);   // (DELETE THIS EXAMPLE)
-		//rotatingRect.setScale(2,2).setColor(Color.RED); 
-		
-		
-
-	} // end createWorld()
+	} 
 
 
 	/**
