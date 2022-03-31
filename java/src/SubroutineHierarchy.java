@@ -44,10 +44,33 @@ public class SubroutineHierarchy extends JPanel {
 	 *  color before this method is called.
 	 */
 	private void drawWorld(Graphics2D g2) {
-
-		// TODO: Draw the content of the scene.
-		g2.translate(1,1);
-		rotatingWheel(g2); 
+		AffineTransform saveTransform = g2.getTransform();
+		Color saveColor = g2.getColor();
+		
+		g2.setColor(Color.BLUE);
+		g2.translate(0, -2.8);
+		g2.scale(0.5,0.5);
+		windmill(g2);
+		g2.setColor(saveColor);
+		g2.setTransform(saveTransform);
+		
+		
+		g2.setColor(Color.MAGENTA);
+		g2.translate(-2.3,-0.5);
+		g2.scale(0.4,0.4);
+		windmill(g2);
+		g2.setColor(saveColor);
+		g2.setTransform(saveTransform);
+		
+		
+		g2.setColor(Color.GREEN);
+		g2.translate(2.4,0.5);
+		g2.scale(0.3,0.3);
+		windmill(g2);
+		g2.setColor(saveColor);
+		g2.setTransform(saveTransform);
+		
+		
 
 	} // end drawWorld()
 	
@@ -63,16 +86,15 @@ public class SubroutineHierarchy extends JPanel {
     
 	// TODO: Define methods for drawing objects in the scene.
 	
-	private void rotatingWheel(Graphics2D g2) { // (DELETE THIS EXAMPLE)
+	private void rotatingWheel(Graphics2D g2) {
 		int vertices = 11;
-		AffineTransform saveTransform = g2.getTransform();  // (It might be necessary to save/restore transform and color)
+		AffineTransform saveTransform = g2.getTransform();
 		Color saveColor = g2.getColor();
 		g2.setColor( Color.BLACK );
-		g2.rotate( Math.toRadians( -frameNumber*1.25 ));
-		g2.scale( 1, 1 );
 		Path2D path = new Path2D.Double();
 		path.moveTo(0, 0);
-		for(int i = 0; i < vertices; i++) {
+		g2.rotate( Math.toRadians( -frameNumber*1.25 ));
+		for(int i = 0; i <= vertices + 1; i++) {
 			double xt_cur = Math.cos(i * 2 * Math.PI / vertices);
 			double yt_cur = Math.sin(i * 2 * Math.PI / vertices);
 			double xt_next = Math.cos(((i+1)%vertices) * 2 * Math.PI / vertices);
@@ -83,6 +105,35 @@ public class SubroutineHierarchy extends JPanel {
 			g2.draw(path);
 		}
 		path.closePath();
+		g2.setColor(saveColor);
+		g2.setTransform(saveTransform);
+	}
+	
+	private void sail(Graphics2D g2) {
+		AffineTransform saveTransform = g2.getTransform(); 
+		Color saveColor = g2.getColor();
+		g2.translate(-2.5,0);
+		rotatingWheel(g2);
+		g2.translate(5,0);
+		rotatingWheel(g2);
+		g2.setColor(Color.RED);
+		g2.translate(-2.5,0);
+		g2.scale(5.4,0.35);
+		filledRect(g2);
+		g2.setColor(saveColor);
+		g2.setTransform(saveTransform);
+	}
+	
+	private void windmill(Graphics2D g2) {
+		AffineTransform saveTransform = g2.getTransform(); 
+		Color saveColor = g2.getColor();
+		g2.translate(0, 4);
+		g2.rotate(Math.toRadians(-15));
+		sail(g2);
+		g2.rotate(Math.toRadians(15));
+		g2.translate(0, -4);
+		g2.scale(1.25, 4);
+		filledTriangle(g2);
 		g2.setColor(saveColor);
 		g2.setTransform(saveTransform);
 	}
