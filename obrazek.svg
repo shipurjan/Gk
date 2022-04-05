@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg"
+xmlns:xlink="http://www.w3.org/1999/xlink"
+width="800px" height="800px"
+viewBox="0 0 10 10"
+preserveAspectRatio="xMidYMid">
+
+<defs>
+<g id="wheel" stroke="black" fill="none" stroke-width="0.01">
+	<animateTransform attributeName = "transform" type = "rotate" 
+		from="0" to="360"
+		begin="0s" dur = "10s"
+		repeatCount="indefinite"
+	/>
+	<polygon points="0.0,0.0 1.0,0.0 0.84125,0.54064"/>
+	<polygon points="0.0,0.0 0.84125,0.54064 0.41542,0.90963"/>
+	<polygon points="0.0,0.0 0.41542,0.90963 -0.14231,0.98982"/>
+	<polygon points="0.0,0.0 -0.14231,0.98982 -0.65486,0.75575"/>
+	<polygon points="0.0,0.0 -0.65486,0.75575 -0.95949,0.28173"/>
+	<polygon points="0.0,0.0 -0.95949,0.28173 -0.95949,-0.28173"/>
+	<polygon points="0.0,0.0 -0.95949,-0.28173 -0.65486,-0.75575"/>
+	<polygon points="0.0,0.0 -0.65486,-0.75575 -0.14231,-0.98982"/>
+	<polygon points="0.0,0.0 -0.14231,-0.98982 0.41542,-0.90963"/>
+	<polygon points="0.0,0.0 0.41542,-0.90963 0.84125,-0.54064"/>
+	<polygon points="0.0,0.0 0.84125,-0.54064 1.0,0.0"/>
+</g>
+</defs>
+
+<defs>
+<g id="sail">
+	<use xlink:href="#wheel"/>
+	<use xlink:href="#wheel" transform="translate(5,0)"/>
+	<rect x="-0.125" y="-0.125" width="5.25" height="0.25" fill="red"/>
+</g>
+</defs>
+
+<defs>
+<g id="windmill">
+	<use xlink:href="#sail" transform="rotate(15)"/>
+	<polygon points="1.8,5.55 2.3,0.55 2.8,5.55"/>
+</g>
+</defs>
+
+<use xlink:href="#windmill" transform="translate(4,5) scale(0.75)" fill="blue"/>
+<use xlink:href="#windmill" transform="translate(1,2.5) scale(0.55)" fill="magenta"/>
+<use xlink:href="#windmill" transform="translate(7,2) scale(0.35)" fill="green"/>
+
+</svg>
+
