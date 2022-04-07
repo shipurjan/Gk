@@ -17,7 +17,7 @@ import com.jogamp.opengl.awt.*;
  *
  * Note that this program does not use lighting.
  */
-public class Pyramid extends GLJPanel implements GLEventListener, KeyListener {
+public class Corkscrew extends GLJPanel implements GLEventListener, KeyListener {
     
     /**
      * A main routine to create and show a window that contains a
@@ -25,8 +25,8 @@ public class Pyramid extends GLJPanel implements GLEventListener, KeyListener {
      * user closes the window.
      */
     public static void main(String[] args) {
-        JFrame window = new JFrame("Pyramid -- ARROW KEYS ROTATE");
-        Pyramid panel = new Pyramid();
+        JFrame window = new JFrame("Corkscrew -- ARROW KEYS ROTATE");
+        Corkscrew panel = new Corkscrew();
         window.setContentPane(panel);
         window.pack();
         window.setLocation(50,50);
@@ -38,7 +38,7 @@ public class Pyramid extends GLJPanel implements GLEventListener, KeyListener {
     /**
      * Constructor for class UnlitCube.
      */
-    public Pyramid() {
+    public Corkscrew() {
         super( new GLCapabilities(null) ); // Makes a panel with default OpenGL "capabilities".
         setPreferredSize( new Dimension(500,500) );
         addGLEventListener(this); // A listener is essential! The listener is where the OpenGL programming lives.
@@ -51,40 +51,27 @@ public class Pyramid extends GLJPanel implements GLEventListener, KeyListener {
     double rotateY = -15;
     double rotateZ = 0;
     
-    private void polygon_base(GL2 gl2, double r, double g, double b, double n) {
+    private void corkscrew(GL2 gl2, double r, double g, double b, double rotations, double density, double size) {
         gl2.glColor3d(r,g,b);
-        gl2.glBegin(GL2.GL_TRIANGLE_FAN);
-        gl2.glVertex3d(0, -0.5, 0);
-        for(int i=0; i<=n; i++) {
-        	double x = Math.cos(i * 2 * Math.PI / n);
-			double y = Math.sin(i * 2 * Math.PI / n);
-			gl2.glVertex3d(x, -0.5, y);
-        }
-        gl2.glEnd();
-    }
-    
-    private void triangle(GL2 gl2, double r, double g, double b, double n) {
-        gl2.glColor3d(r,g,b);
-        gl2.glBegin(GL2.GL_TRIANGLE_FAN);
-        gl2.glVertex3d(0, 0.5, 0);
-        gl2.glVertex3d(1, -0.5, 0);
-        gl2.glVertex3d(Math.cos(2 * Math.PI / n), -0.5, Math.sin(2 * Math.PI / n));
-        gl2.glEnd();
-    }
-    
-    private void pyramid(GL2 gl2, double r, double g, double b, double n, double size) {
-    	gl2.glPushMatrix();
         gl2.glScaled(size,size,size);
-        polygon_base(gl2, r, g, b, n);
-        
-        for(int i=0; i<n; i++) {
-            gl2.glPushMatrix();
-            gl2.glRotated(i*(360/n), 0, 1, 0);
-            triangle(gl2,1-r, 1-g, 1-b, n);
-            gl2.glPopMatrix();
+        gl2.glEnable(GL2.GL_POINT_SMOOTH);
+        for(int i=0; i<rotations; i++) {
+        	double shift = i/rotations;
+        	
+        	for(int j=0; j<density; j++) {
+        		float subshift = (float)((j/density)/rotations);
+        		float normalized_frac = (float)(shift+subshift);
+        		double x = normalized_frac-0.5;
+        		double y = 0.1*Math.cos(j * 2 * Math.PI / density);
+        		double z = 0.1*Math.sin(j * 2 * Math.PI / density);
+        		
+        		gl2.glPointSize(10.0f*(normalized_frac+0.01f));
+                gl2.glBegin(GL2.GL_POINTS);
+                gl2.glVertex3d(x, y, z);
+                gl2.glEnd();
+        	}
         }
-        
-        gl2.glPopMatrix();
+        gl2.glEnd();
     }
     
     
@@ -105,7 +92,7 @@ public class Pyramid extends GLJPanel implements GLEventListener, KeyListener {
         gl2.glRotated(rotateY,0,1,0);
         gl2.glRotated(rotateX,1,0,0);
 
-        pyramid(gl2, 1, 0, 0, 11, 0.5);
+        corkscrew(gl2, 1, 1, 0, 3, 50, 1.5);
 
         
     } // end display()
