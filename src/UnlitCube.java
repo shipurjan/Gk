@@ -51,49 +51,40 @@ public class UnlitCube extends GLJPanel implements GLEventListener, KeyListener 
     double rotateY = -15;
     double rotateZ = 0;
     
-    private void polygon(GL2 gl2, double r, double g, double b, int n) {
-    	//do zmiany funkcja
+    private void polygon_base(GL2 gl2, double r, double g, double b, double n) {
         gl2.glColor3d(r,g,b);
         gl2.glBegin(GL2.GL_TRIANGLE_FAN);
-        gl2.glVertex3f(0.0f, 0.0f, 0.0f);
-        for(int i=0; i < n; i++) {
-        	gl2.glVertex3f(i*0.1f, i*0.1f, 0.0f); 
+        gl2.glVertex3d(0, -0.5, 0);
+        for(int i=0; i<=n; i++) {
+        	double x = Math.cos(i * 2 * Math.PI / n);
+			double y = Math.sin(i * 2 * Math.PI / n);
+			gl2.glVertex3d(x, -0.5, y);
         }
         gl2.glEnd();
     }
     
-    private void cube(GL2 gl2, double size) {
-        gl2.glPushMatrix();
-        gl2.glScaled(size,size,size); // scale unit cube to desired size
-        final int n = 11;
-        polygon(gl2,1, 0, 0, n); // red front face
+    private void triangle(GL2 gl2, double r, double g, double b, double n) {
+        gl2.glColor3d(r,g,b);
+        gl2.glBegin(GL2.GL_TRIANGLE_FAN);
+        gl2.glVertex3d(0, 0.5, 0);
+        gl2.glVertex3d(1, -0.5, 0);
+        gl2.glVertex3d(Math.cos(2 * Math.PI / n), -0.5, Math.sin(2 * Math.PI / n));
+        gl2.glEnd();
+    }
+    
+    private void pyramid(GL2 gl2, double r, double g, double b, double n, double size) {
+    	gl2.glPushMatrix();
+        gl2.glScaled(size,size,size);
+        polygon_base(gl2, r, g, b, n);
         
-        gl2.glPushMatrix();
-        gl2.glRotated(90, 0, 1, 0);
-        polygon(gl2,0, 1, 0, n); // green right face
+        for(int i=0; i<n; i++) {
+            gl2.glPushMatrix();
+            gl2.glRotated(i*(360/n), 0, 1, 0);
+            triangle(gl2,1-r, 1-g, 1-b, n);
+            gl2.glPopMatrix();
+        }
+        
         gl2.glPopMatrix();
-        
-        gl2.glPushMatrix();
-        gl2.glRotated(-90, 1, 0, 0);
-        polygon(gl2,0, 0, 1, n); // blue top face
-        gl2.glPopMatrix();
-        
-        gl2.glPushMatrix();
-        gl2.glRotated(180, 0, 1, 0);
-        polygon(gl2,0, 1, 1, n); // cyan back face
-        gl2.glPopMatrix();
-        
-        gl2.glPushMatrix();
-        gl2.glRotated(-90, 0, 1, 0);
-        polygon(gl2,1, 0, 1, n); // magenta left face
-        gl2.glPopMatrix();
-        
-        gl2.glPushMatrix();
-        gl2.glRotated(90, 1, 0, 0);
-        polygon(gl2,1, 1, 0, n); // yellow bottom face
-        gl2.glPopMatrix();
-        
-        gl2.glPopMatrix(); // Restore matrix to its state before cube() was called.
     }
     
     
@@ -114,7 +105,8 @@ public class UnlitCube extends GLJPanel implements GLEventListener, KeyListener 
         gl2.glRotated(rotateY,0,1,0);
         gl2.glRotated(rotateX,1,0,0);
 
-        cube(gl2,1);
+        pyramid(gl2, 1, 0, 0, 11, 0.5);
+
         
     } // end display()
 
