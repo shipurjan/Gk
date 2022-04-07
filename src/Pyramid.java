@@ -17,7 +17,7 @@ import com.jogamp.opengl.awt.*;
  *
  * Note that this program does not use lighting.
  */
-public class UnlitCube extends GLJPanel implements GLEventListener, KeyListener {
+public class Pyramid extends GLJPanel implements GLEventListener, KeyListener {
     
     /**
      * A main routine to create and show a window that contains a
@@ -26,7 +26,7 @@ public class UnlitCube extends GLJPanel implements GLEventListener, KeyListener 
      */
     public static void main(String[] args) {
         JFrame window = new JFrame("A Simple Unlit Cube -- ARROW KEYS ROTATE");
-        UnlitCube panel = new UnlitCube();
+        Pyramid panel = new Pyramid();
         window.setContentPane(panel);
         window.pack();
         window.setLocation(50,50);
@@ -38,7 +38,7 @@ public class UnlitCube extends GLJPanel implements GLEventListener, KeyListener 
     /**
      * Constructor for class UnlitCube.
      */
-    public UnlitCube() {
+    public Pyramid() {
         super( new GLCapabilities(null) ); // Makes a panel with default OpenGL "capabilities".
         setPreferredSize( new Dimension(500,500) );
         addGLEventListener(this); // A listener is essential! The listener is where the OpenGL programming lives.
