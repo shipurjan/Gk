@@ -17,11 +17,17 @@ var controls;  // An OrbitControls object that is used to implement
 
 var animating = false;  // Set to true when an animation is in progress.
 var frameNumber = 0;  // Frame number is advanced by 1 for each frame while animating.
-const DEFAULT_ROTATION = Math.PI/12;
-const SHIFT_UNITS = -3;
-const HORSE_COUNT = 6;
-var base, earth, stick, roof, horses;
-var horse_types = [];
+
+const BASE_RADIUS = 3; 
+let BR = BASE_RADIUS;
+const PAWN_HEIGHT = 3.5*BASE_RADIUS;
+let PH = PAWN_HEIGHT;
+const INITIAL_POSITION_Y = -6;
+let IPY = INITIAL_POSITION_Y;
+var current_height = IPY;
+var radius_last = BR;
+
+var pawn = new THREE.Mesh();
 
 
 /**
@@ -31,7 +37,22 @@ function render() {
     renderer.render(scene, camera);
 }
 
-
+function addLayer(radiusTop, height){
+    console.log(radiusTop, radius_last, height, current_height);
+    const material = new THREE.MeshPhongMaterial({
+        color: 0xFFFFFF, 
+        specular: 0x222222, 
+        shininess: 10, 
+        shading: THREE.FlatShading
+    });
+    var geometry = new THREE.CylinderGeometry(radiusTop, radius_last, height, 64);
+    radius_last = radiusTop;
+    var mesh = new THREE.Mesh(geometry, material);
+    current_height += height;
+    mesh.position.y = current_height - height/2;
+    pawn.add(mesh);
+    
+}
 /**
  * This function is called by the init() method to create the world. 
  */
@@ -52,94 +73,23 @@ function createWorld() {
     
     //------------------- Create the scene's visible objects ----------------------
     
-    const base_radius = 12;
-    const base_height = 0.1;
-    const base_sides = 11;
-    var geometry = new THREE.CylinderGeometry( base_radius, base_radius, base_height, base_sides );
-    var material = new THREE.MeshPhongMaterial({
-        color: 0xFF00FF, 
-        specular: 0x222222, 
-        shininess: 10, 
-        shading: THREE.FlatShading
-    })
-    base =  new THREE.Mesh( geometry, material );
-    base.position.y = SHIFT_UNITS;
-    base.rotation.y = DEFAULT_ROTATION;
-    scene.add(base);
-    
-    const earth_radius = 3;
-    var texture = new THREE.TextureLoader().load('resources/earth.jpg');
-    var geometry = new THREE.SphereGeometry( earth_radius, 64, 64 );
-    var material = new THREE.MeshBasicMaterial( {
-        color: "white", 
-        map: texture 
-    });
-    earth = new THREE.Mesh( geometry, material );
-    earth.position.y = SHIFT_UNITS + earth_radius + base_height/2;
-    earth.rotation.y = DEFAULT_ROTATION;
-    scene.add(earth);
+    addLayer(1.00*BR, 0.030*PH);
+    addLayer(0.98*BR, 0.025*PH);
+    addLayer(0.94*BR, 0.010*PH);
+    addLayer(0.95*BR, 0.010*PH);
+    for(var i=0.95; i>0.375; i -= 0.01)
+        addLayer(i*BR, -Math.log10(i)*PH/25);
+    addLayer(0.45*BR, 0.005*PH);
+    addLayer(0.55*BR, 0.005*PH);
+    addLayer(0.65*BR, 0.010*PH);
+    addLayer(0.65*BR, 0.010*PH);
+    addLayer(0.55*BR, 0.005*PH);
+    addLayer(0.45*BR, 0.005*PH);
+    for(var i=0.2; i<=1; i += 0.01)
+        addLayer(2*Math.sin(i*Math.PI),Math.sin(i*Math.PI)*PH/250);
 
-    const roof_height = 3;
-    var geometry = new THREE.CylinderGeometry( base_height, base_radius, roof_height, base_sides );
-    var material = new THREE.MeshPhongMaterial({
-        color: 0xFF00FF, 
-        specular: 0x222222, 
-        shininess: 10, 
-        shading: THREE.FlatShading
-    });
-    roof =  new THREE.Mesh( geometry, material );
-    roof.position.y = SHIFT_UNITS + 2*earth_radius + roof_height/2;
-    roof.rotation.y = DEFAULT_ROTATION;
-    scene.add(roof);
+    scene.add(pawn);
 
-
-
-    const stick_radius = 0.1;
-    const stick_height = 2*earth_radius;
-    var geometry = new THREE.CylinderGeometry(stick_radius,stick_radius,stick_height,64);
-    var material = new THREE.MeshPhongMaterial({
-        color: 0x663300,
-        specular: 0x222222,
-        shininess: 16,
-        shading: THREE.FlatShading
-    });
-    stick =  new THREE.Mesh( geometry, material );
-    
-    
-
-
-    const horses_count = 6;
-    const horse_colors = [0xFFFFFF, 0x33FF00, 0x663300];
-    var loader = new THREE.GLTFLoader();
-    loader.load( 'resources/Horse.glb', function ( gltf ) {
-        var model = gltf.scene;
-        model.scale.multiplyScalar(.025);
-        for(var i=0;i<horse_colors.length;i++){
-            var material = new THREE.MeshPhongMaterial({
-                color: horse_colors[i],
-                specular: 0x222222,
-                shininess: 16,
-                shading: THREE.FlatShading
-            });
-            model.children[0].material = material;
-            model.position.y = SHIFT_UNITS;
-            horse_types[i] = stick.clone();
-            horse_types[i].add(model.clone());
-        }
-        horses = new THREE.Mesh();
-        for(var i=0;i<HORSE_COUNT;i++){
-            var horse = horse_types[i%horse_types.length];
-            horse.rotation.y = -2 * i * Math.PI/HORSE_COUNT;
-            horse.position.x = (0.65*base_radius * Math.cos(i * 2 * Math.PI / HORSE_COUNT));
-            horse.position.z = (0.65*base_radius * Math.sin(i * 2 * Math.PI / HORSE_COUNT));
-            horses.add(horse.clone());
-        }
-        scene.add(horses);
-    });
-
-
-
-    
     
 } // end function createWorld()
 
@@ -158,10 +108,7 @@ function updateForFrame() {
         loopFrame = 240 - loopFrame;
     }
     var scaleFactor = 1 + loopFrame/120;
-    earth.rotation.y -= 0.01;
-    base.rotation.y -= 0.01;
-    roof.rotation.y -= 0.01;
-    horses.rotation.y -=0.01;
+    
 }
 
 
