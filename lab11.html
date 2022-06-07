@@ -27,6 +27,11 @@
     uniform float u_width;   // width of canvas
     uniform float u_height;  // height of canvas
     uniform float u_pointSize; 
+
+    attribute vec3 a_color; 
+    varying vec3 v_outcolor;
+    uniform int u_sides;
+
     void main() {
         float x,y;  // vertex position in clip coordinates
         
@@ -35,6 +40,7 @@
         
         gl_Position = vec4(x, y, 0.0, 1.0);
         gl_PointSize = u_pointSize;
+        v_outcolor = vec3(a_color);
     }
 </script>
 
@@ -44,8 +50,11 @@
     #else
        precision mediump float;
     #endif
+
+    varying vec3 v_outcolor;
+
     void main() {
-        gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0);
+        gl_FragColor = vec4(v_outcolor, 1.0);
     }
 </script>
 
@@ -79,6 +88,8 @@ var a_color_loc;
 var a_color_buffer;
 var color = new Float32Array(3 * POINT_COUNT);
 var isColorBuffer = false;
+var u_sides_loc;
+var isPolygon = false;
 
 /**
  *  Called by init() when the window is first opened, and by frame() to render each frame.
@@ -86,7 +97,6 @@ var isColorBuffer = false;
 function render() {
 
     gl.clear(gl.COLOR_BUFFER_BIT);  // clear the color buffer before drawing
-
     // The position data changes for each frame, so we have to send the new values
     // for the position attirbute into the corresponding buffer in the GPU here,
     // in every frame.
@@ -104,6 +114,7 @@ function render() {
         gl.disableVertexAttribArray(a_color_loc); // nie używaj bufora
         gl.vertexAttrib3f(a_color_loc, 1, 0, 0);
     }
+    
 
     gl.drawArrays(gl.POINTS, 0, POINT_COUNT);
     
@@ -120,7 +131,7 @@ function render() {
  */
 function createData() {
     for (let i = 0; i < color.length; i++) { 
-            color[i] = Math.random(); 
+        color[i] = Math.random(); 
     }
     for (var i = 0; i < POINT_COUNT; i++) {
         positions[2*i] = canvas.width/2;
@@ -169,10 +180,9 @@ function doKey(evt) {
         isColorBuffer = !isColorBuffer;
     }
     if (key == 50){ // 2
-        console.log();
-    }
-    if (key == 51){ // 3
-        console.log();
+        var num = prompt("Jaki wielobok chciałbyś zobaczyć?", "6"); 
+        var nSides = parseInt(num); 
+        gl.uniform1i(u_sides_loc, nSides); 
     }
     if (key == 32) {  // space bar
         if (isRunning) {
@@ -198,7 +208,8 @@ function initGL() {
     u_height_loc = gl.getUniformLocation(prog,"u_height");
     u_pointSize_loc = gl.getUniformLocation(prog,"u_pointSize");
     a_coords_loc = gl.getAttribLocation(prog,"a_coords");
-    a_color_loc = gl.getAttribLocation(prog, "color");
+    a_color_loc = gl.getAttribLocation(prog, "a_color");
+    u_sides_loc = gl.getAttribLocation(prog, "u_sides");
     
     /* Assign initial values to uniforms. */    
     
@@ -215,13 +226,7 @@ function initGL() {
     a_color_buffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, a_color_buffer);
     gl.bufferData(gl.ARRAY_BUFFER, color, gl.STATIC_DRAW);
-    gl.vertexAttribPointer(
-                a_color_loc,
-                3,
-                gl.FLOAT,
-                false,
-                0,
-                0);
+    gl.vertexAttribPointer(a_color_loc,3,gl.FLOAT,false,0,0);
     
     gl.clearColor(0,0,0,1);  // gl.clear will fill canvas with black.
     
