@@ -30,7 +30,8 @@
 
     attribute vec3 a_color; 
     varying vec3 v_outcolor;
-    uniform int u_sides;
+    uniform int u_type;
+    varying float type;
 
     void main() {
         float x,y;  // vertex position in clip coordinates
@@ -41,6 +42,7 @@
         gl_Position = vec4(x, y, 0.0, 1.0);
         gl_PointSize = u_pointSize;
         v_outcolor = vec3(a_color);
+        type = float(u_type);
     }
 </script>
 
@@ -52,9 +54,32 @@
     #endif
 
     varying vec3 v_outcolor;
+    varying float type; 
 
-    void main() {
-        gl_FragColor = vec4(v_outcolor, 1.0);
+    const float pi = 3.141592653589793;
+    float polygon(float s, float a, vec2 p) {
+        float angle = atan(p.x,p.y);
+        float angle_floored = floor(angle*s/(2.0*pi))/s;
+        float angle_pi = pi*(2.0*angle_floored + 1.0/s);
+        float x = angle - angle_pi;
+        if(cos(x) * length(p) < a)
+            return 1.0;
+        else 
+            return 0.0;
+    }
+    
+    const float a = 0.4;
+    void main()
+    {
+        float dist = distance( vec2(0.5), gl_PointCoord );
+        gl_FragColor = vec4(v_outcolor, 1.0);//RGBA 
+        if(type > 4.0){
+            float polygon_dist = polygon(type, a, vec2(gl_PointCoord.x - 0.5, gl_PointCoord.y- 0.5 ));
+            if(dist > polygon_dist){ 
+                discard; 
+            }
+        }
+    
     }
 </script>
 
@@ -88,8 +113,14 @@ var a_color_loc;
 var a_color_buffer;
 var color = new Float32Array(3 * POINT_COUNT);
 var isColorBuffer = false;
-var u_sides_loc;
-var isPolygon = false;
+var u_type_loc; 
+var nSides = 5; 
+
+function changeType() { 
+    var num = prompt("Podaj ilość boków wielokąta (>4)", "6"); 
+    nSides = parseInt(num); 
+    gl.uniform1i(u_type_loc, nSides); 
+}
 
 /**
  *  Called by init() when the window is first opened, and by frame() to render each frame.
@@ -106,8 +137,6 @@ function render() {
     gl.vertexAttribPointer(a_coords_loc, 2, gl.FLOAT, false, 0, 0);  // Describes the data format.
     
     
-    // Now, draw the points as a primitive of type gl.POINTS
-    
     if (isColorBuffer) { 
         gl.enableVertexAttribArray(a_color_loc); // użyj bufora atrybutów kolorów
     } else {
@@ -115,8 +144,9 @@ function render() {
         gl.vertexAttrib3f(a_color_loc, 1, 0, 0);
     }
     
+    // Now, draw the points as a primitive of type gl.POINTS
 
-    gl.drawArrays(gl.POINTS, 0, POINT_COUNT);
+    gl.drawArrays(gl.POINT, 0, POINT_COUNT);
     
     if (gl.getError() != gl.NO_ERROR) {
         console.log("During render, a GL error has been detected.");
@@ -180,9 +210,7 @@ function doKey(evt) {
         isColorBuffer = !isColorBuffer;
     }
     if (key == 50){ // 2
-        var num = prompt("Jaki wielobok chciałbyś zobaczyć?", "6"); 
-        var nSides = parseInt(num); 
-        gl.uniform1i(u_sides_loc, nSides); 
+        changeType();
     }
     if (key == 32) {  // space bar
         if (isRunning) {
@@ -209,7 +237,7 @@ function initGL() {
     u_pointSize_loc = gl.getUniformLocation(prog,"u_pointSize");
     a_coords_loc = gl.getAttribLocation(prog,"a_coords");
     a_color_loc = gl.getAttribLocation(prog, "a_color");
-    u_sides_loc = gl.getAttribLocation(prog, "u_sides");
+    u_type_loc = gl.getUniformLocation(prog, "u_type");//+
     
     /* Assign initial values to uniforms. */    
     
@@ -411,6 +439,12 @@ function init() {
 </script>
 </head>
 <body onload="init()">
+    <div style="background-color: black; color: white; border-bottom: 1px solid white; padding: 0.5em 0;">
+        <ol style="margin: 0;line-height: 1.5em; user-select: none;">
+            <li>Włącz bufer kolorów (losowe kolory)</li>
+            <li>Zmień kształt kwadratów na wielokąt</li>
+        </ol>
+    </div>
 <noscript>Sorry, this page requires JavaScript.</noscript>
 </body>
 </html>
