@@ -1,12 +1,20 @@
 import java.awt.*;
+
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.net.URL;
+import java.util.Objects;
+
 import com.jogamp.opengl.*;
 import com.jogamp.opengl.awt.*;
 import com.jogamp.opengl.util.awt.AWTGLReadBufferUtil;
+import com.jogamp.opengl.util.awt.ImageUtil;
 import com.jogamp.opengl.util.gl2.GLUT;
-import com.jogamp.opengl.util.texture.Texture; 
+import com.jogamp.opengl.util.texture.Texture;
+import com.jogamp.opengl.util.texture.awt.AWTTextureIO; 
 
 /**
  * CPSC 424, Fall 2015, Lab 7:  Image Textures in OpenGL/JOGL.
@@ -168,7 +176,32 @@ public class Lab7 extends JPanel implements GLEventListener {
 	 * @return the newly created texture.
 	 */
 	private Texture textureFromResource(String resourceName) {
-		// TODO: write this method
+		try {
+			URL textureURL;
+			textureURL = this.getClass().getClassLoader().getResource(resourceName);
+	        if (textureURL != null) {
+				BufferedImage img = ImageIO.read(textureURL);
+				ImageUtil.flipImageVertically(img);
+				Texture texture;
+			    GLContext context = displayGL.getContext();
+			    boolean needsRelease = false;
+			    if (!context.isCurrent()) {
+			        context.makeCurrent();
+			        needsRelease = true;
+			    }
+				GL2 gl2 = context.getGL().getGL2();
+				texture = AWTTextureIO.newTexture(GLProfile.getDefault(), img, true);
+				texture.setTexParameteri(gl2, GL2.GL_TEXTURE_WRAP_S, GL2.GL_REPEAT);
+				texture.setTexParameteri(gl2, GL2.GL_TEXTURE_WRAP_T, GL2.GL_REPEAT);
+			    if (needsRelease) {
+			        context.release();
+			    }
+				return texture;
+        	}
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
 		return null;
 	}
 	
