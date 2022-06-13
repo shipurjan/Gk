@@ -118,8 +118,43 @@ public class Lab7 extends JPanel implements GLEventListener {
 		case 6:
 			triangularPrism(gl2);
 			break;
+		case 7:
+			pyramid(gl2, 11, 0.5);
+			break;
 		}
 	}
+    private void polygon_base(GL2 gl2, double n) {
+        gl2.glBegin(GL2.GL_TRIANGLE_FAN);
+        gl2.glVertex3d(0, -0.5, 0);
+        for(int i=0; i<=n; i++) {
+        	double x = Math.cos(i * 2 * Math.PI / n);
+			double y = Math.sin(i * 2 * Math.PI / n);
+			gl2.glVertex3d(x, -0.5, y);
+        }
+        gl2.glEnd();
+    }
+    
+    private void triangle(GL2 gl2, double n) {
+        gl2.glBegin(GL2.GL_TRIANGLE_FAN);
+        gl2.glVertex3d(0, 0.5, 0);
+        gl2.glVertex3d(1, -0.5, 0);
+        gl2.glVertex3d(Math.cos(2 * Math.PI / n), -0.5, Math.sin(2 * Math.PI / n));
+        gl2.glEnd();
+    }
+    
+    private void pyramid(GL2 gl2, double n, double size) {
+    	gl2.glPushMatrix();
+        gl2.glScaled(size,size,size);
+        polygon_base(gl2, n);
+        
+        for(int i=0; i<n; i++) {
+            gl2.glPushMatrix();
+            gl2.glRotated(i*(360/n), 0, 1, 0);
+            triangle(gl2, n);
+            gl2.glPopMatrix();
+        }
+        gl2.glPopMatrix();
+    }
 	
 	/**
 	 * Draws a triangular prism by drawing its five faces.
@@ -210,8 +245,27 @@ public class Lab7 extends JPanel implements GLEventListener {
 	 * @return the newly created texture object.
 	 */
 	private Texture textureFromPainting() {
-		// TODO: write this method
-		return null;
+		Texture texture;
+        BufferedImage img = paintPanel.copyOSC();
+
+        GLContext context = displayGL.getContext();
+        boolean needsRelease = false;
+        if (!context.isCurrent()) {
+            context.makeCurrent();
+            needsRelease = true;
+        }
+
+        GL2 gl2 = context.getGL().getGL2();
+        
+        texture = AWTTextureIO.newTexture(displayGL.getGLProfile(), img, true);
+        texture.setTexParameteri(gl2, GL2.GL_TEXTURE_WRAP_S, GL2.GL_REPEAT);
+        texture.setTexParameteri(gl2, GL2.GL_TEXTURE_WRAP_T, GL2.GL_REPEAT);
+
+        if (needsRelease) {
+            context.release();
+        }
+
+        return texture;
 	}
 	
 	/**
@@ -254,8 +308,14 @@ public class Lab7 extends JPanel implements GLEventListener {
 		camera.apply(gl2); // Sets projection and view transformations.
 		
 		// TODO: apply currentTexture (or turn off texturing if it is null)
-		
-		drawCurrentShape(gl2);
+		Texture tex = currentTexture;
+		if (tex != null) {
+			tex.enable(gl2);
+		    tex.bind(gl2);
+		    drawCurrentShape(gl2);
+		    tex.disable(gl2);
+		} else
+		    drawCurrentShape(gl2);
 
 	} // end display()
 
@@ -379,6 +439,7 @@ public class Lab7 extends JPanel implements GLEventListener {
 		makeMenuItem(objectMenu, "Torus", objectListener, 4);
 		makeMenuItem(objectMenu, "Teapot", objectListener, 5);
 		makeMenuItem(objectMenu, "Triangular Prism", objectListener, 6);
+		makeMenuItem(objectMenu, "Pyramid", objectListener, 7);
 		menuBar.add(objectMenu);
 		
 		return menuBar;
